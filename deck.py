@@ -1,9 +1,11 @@
 from random import shuffle
 from typing import List, TypeVar, Iterator, Iterable
-from operator import attrgetter,or_
+from operator import attrgetter, or_, mul
 from functools import reduce
 from itertools import combinations
 from card import Card
+import config as cfg
+from lookups import LookupTables
 
 TCardSet = TypeVar("CardSet")
 
@@ -27,48 +29,61 @@ class CardSet:
         shuffle(self._cards)
 
     def is_royal_flush(self):
-        rank_res = reduce(or_, self._get_set_ranks_or())
-        suit_res = reduce(or_, self._get_set_suits_or())
+        rank_res = self.get_rank_product()
+        suit_res = reduce(or_, self.get_all_suits())
 
-        return (rank_res == ROYAL_FLUSH_NUMBER) and ((suit_res & (suit_res - 1)) == 0)
+        return (rank_res == LookupTables.ROYAL_FLUSH_PRODUCT) and ((suit_res & (suit_res - 1)) == 0)
 
     def is_straight_flush(self):
-        rank_res = reduce(or_, self._get_set_ranks_or())
-        suit_res = reduce(or_, self._get_set_suits_or())
+        rank_res = self.get_rank_product()
+        suit_res = reduce(or_, self.get_all_suits())
 
-        return rank_res in STRAIGHT_MAP and ((suit_res & (suit_res - 1)) == 0)
+        return (rank_res in LookupTables.STRAIGHT_TABLE) and ((suit_res & (suit_res - 1)) == 0)
 
     def is_four_of_kind(self):
-        return NotImplemented
+        rank_res = self.get_rank_product()
+        return rank_res in LookupTables.FOUR_OF_KIND_TABLE
 
     def is_full_house(self):
-        return NotImplemented
+        rank_res = self.get_rank_product()
+        return rank_res in LookupTables.FULL_HOUSE_TABLE
 
     def is_flush(self):
-        suit_res = reduce(or_, self._get_set_suits_or())
+        suit_res = reduce(or_, self.get_all_suits())
         return (suit_res & (suit_res - 1)) == 0
 
     def is_straight(self):
-        rank_res = reduce(or_, self._get_set_ranks_or())
-        return rank_res in STRAIGHT_MAP
+        rank_res = self.get_rank_product()
+        return rank_res in LookupTables.STRAIGHT_TABLE
 
+    def is_three_of_kind(self):
+        rank_res = self.get_rank_product()
+        return rank_res in LookupTables.THREE_OF_KIND
 
+    def is_two_pairs(self):
+        rank_res = self.get_rank_product()
+        return rank_res in LookupTables.TWO_PAIRS
 
+    def is_pair(self):
+        rank_res = self.get_rank_product()
+        return rank_res in LookupTables.ONE_PAIR
 
     def evaluate(self):
-        assert len(self) == Deck.HAND_SIZE
+        assert len(self) == cfg.HAND_SIZE
+        # return True
         return self.is_royal_flush()
 
-    # @TODO: rename
-    def _get_set_ranks_or(self):
+    def get_rank_product(self):
+        return reduce(mul, self.get_all_ranks(), 1)
+
+    def get_all_ranks(self):
         return map(attrgetter("rank_value"), self)
 
-    # @TODO: rename
-    def _get_set_suits_or(self):
+    def get_all_suits(self):
         return map(attrgetter("suit_value"), self)
 
     def get_all_combinations(self):
-        for hand in combinations(self, Deck.HAND_SIZE):
+        for hand in combinations(self, cfg.HAND_SIZE):
             yield CardSet(hand)
 
     def __len__(self):
@@ -86,15 +101,12 @@ class CardSet:
 
 
 class Deck(CardSet):
-    CARDS_IN_DECK = 52
-    HAND_SIZE = 5
-
     def __init__(self) -> None:
         super(Deck, self).__init__(list(Card.generate_all_cards()))
 
 
 straight_value = 1 << 4 | 1 << 3 | 1 << 2 | 1 << 1 | 1 << 0
-for i in range(len(Card.AVAILABLE_RANKS)-(Deck.HAND_SIZE-1)):
+for i in range(len(Card.AVAILABLE_RANKS)-(cfg.HAND_SIZE-1)):
     value = straight_value << i
     # print(value, bin(value))
     STRAIGHT_MAP[value] = True

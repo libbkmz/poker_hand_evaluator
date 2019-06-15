@@ -1,5 +1,21 @@
 from typing import Iterator
 
+PRIME_NUMBERS = [
+    2,
+    3,
+    5,
+    7,
+    11,
+    13,
+    17,
+    19,
+    23,
+    29,
+    31,
+    37,
+    41,
+]
+
 
 class Card:
     AVAILABLE_SUITS = {
@@ -8,20 +24,21 @@ class Card:
         "h": 1 << 2,  # hearts
         "s": 1 << 3,  # spades
     }
+    # assume Ordered Dict
     AVAILABLE_RANKS = {
-        "2": 1 << 0,
-        "3": 1 << 1,
-        "4": 1 << 2,
-        "5": 1 << 3,
-        "6": 1 << 4,
-        "7": 1 << 5,
-        "8": 1 << 6,
-        "9": 1 << 7,
-        "T": 1 << 8,
-        "J": 1 << 9,
-        "Q": 1 << 10,
-        "K": 1 << 11,
-        "A": 1 << 12,
+        "2": PRIME_NUMBERS[0],
+        "3": PRIME_NUMBERS[1],
+        "4": PRIME_NUMBERS[2],
+        "5": PRIME_NUMBERS[3],
+        "6": PRIME_NUMBERS[4],
+        "7": PRIME_NUMBERS[5],
+        "8": PRIME_NUMBERS[6],
+        "9": PRIME_NUMBERS[7],
+        "T": PRIME_NUMBERS[8],
+        "J": PRIME_NUMBERS[9],
+        "Q": PRIME_NUMBERS[10],
+        "K": PRIME_NUMBERS[11],
+        "A": PRIME_NUMBERS[12],
     }
 
     REVERSE_SUITS = None  # type: dict
