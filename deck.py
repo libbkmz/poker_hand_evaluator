@@ -9,12 +9,6 @@ from lookups import LookupTables
 
 TCardSet = TypeVar("CardSet")
 
-N = len(Card.AVAILABLE_RANKS)
-ROYAL_FLUSH_NUMBER = 1 << N-1 | 1 << N-2 | 1 << N-3 | 1 << N-4 | 1 << N-5
-# print(N, ROYAL_FLUSH_NUMBER)
-
-STRAIGHT_MAP = {}
-
 
 class CardSet:
     def __init__(self, cards: List[Card]) -> None:
@@ -70,7 +64,6 @@ class CardSet:
 
     def evaluate(self):
         assert len(self) == cfg.HAND_SIZE
-        # return True
         return self.is_royal_flush()
 
     def get_rank_product(self):
@@ -103,12 +96,3 @@ class CardSet:
 class Deck(CardSet):
     def __init__(self) -> None:
         super(Deck, self).__init__(list(Card.generate_all_cards()))
-
-
-straight_value = 1 << 4 | 1 << 3 | 1 << 2 | 1 << 1 | 1 << 0
-for i in range(len(Card.AVAILABLE_RANKS)-(cfg.HAND_SIZE-1)):
-    value = straight_value << i
-    # print(value, bin(value))
-    STRAIGHT_MAP[value] = True
-
-STRAIGHT_MAP[(straight_value >> 1) | (1 << (len(Card.AVAILABLE_RANKS)-1))] = True
